@@ -4,53 +4,8 @@
  Rewritten for flexibility, functionality, and simplicity by crazicrafter1/PeriodicSeizures (2020)
  */
 
-/* 
- A servo is activated by creating an instance of the Servo class, and passing
- the desired GPIO pin to the attach() method.
- The servos are pulsed in the background using the value most recently
- written using the write() method.
-
- The class methods are:
-
- Servo - Class for manipulating servo motors connected to ESP32 pins.
- int attach(pin )  - Attaches the given GPIO pin to the next free channel
- (channels that have previously been detached are used first),
- returns channel number or 0 if failure. All pin numbers are allowed,
- but only pins 2,4,12-19,21-23,25-27,32-33 are recommended.
- int attach(pin, min, max  ) - Attaches to a pin setting min and max
- values in microseconds; enforced minimum min is 500, enforced max
- is 2500. Other semantics same as attach().
- void write () - Sets the servo angle in degrees; a value below 500 is
- treated as a value in degrees (0 to 180). These limit are enforced,
- i.e., values are treated as follows:
- Value                                   Becomes
- -----                                   -------
- < 0                                        0
- 0 - 180                             value (treated as degrees)
- 181 - 499                                 180
- 500 - (min-1)                             min
- min-max (from attach or default)    value (treated as microseconds)
- (max+1) - 2500                            max
-
- void writeMicroseconds() - Sets the servo pulse width in microseconds.
- min and max are enforced (see above).
- int read() - Gets the last written servo pulse width as an angle between 0 and 180.
- int readMicroseconds()   - Gets the last written servo pulse width in microseconds.
- bool attached() - Returns true if this servo instance is attached.
- void detach() - Stops an the attached servo, frees its attached pin, and frees
- its channel for reuse).
-
- *** ESP32-specific functions **
- setTimerWidth(value) - Sets the PWM timer width (must be 16-20) (ESP32 ONLY);
- as a side effect, the pulse width is recomputed.
- int readTimerWidth() - Gets the PWM timer width (ESP32 ONLY)
- */
-
 #ifndef ESP32_ServoRW_h
 #define ESP32_ServoRW_h
-//#include "analogWrite.h"
-//#include "ESP32PWM.h"
-//#include "ESP32Tone.h"
 //Enforce only using PWM pins on the ESP32
 #define ENFORCE_PINS
 // Default Arduino Servo.h
@@ -126,9 +81,6 @@ public:
 private:
 	int usToTicks(int usec);
 	int ticksToUs(int ticks);
-//   static int ServoCount;                             // the total number of attached servos
-//   static int ChannelUsed[];                          // used to track whether a channel is in service
-//   int servoChannel = 0;                              // channel number for this servo
 
 	int min = DEFAULT_uS_LOW;           // minimum pulse width for this servo
 	int max = DEFAULT_uS_HIGH;            // maximum pulse width for this servo
@@ -136,11 +88,9 @@ private:
 	int timer_width = DEFAULT_TIMER_WIDTH; // ESP32 allows variable width PWM timers
 	int ticks = DEFAULT_PULSE_WIDTH_TICKS; // current pulse width on this channel
 	int timer_width_ticks = DEFAULT_TIMER_WIDTH_TICKS; // no. of ticks at rollover; varies with width
-	//ESP32PWM * getPwm(); // get the PWM object
-	//ESP32PWM pwm;
 	int REFRESH_CPS = 50;
   int channel;
   bool isAttached;
-
 };
+
 #endif

@@ -1,7 +1,6 @@
-#include "ESP32ServoRW.h"
+#include <ESP32ServoRW.h>
 #include "Arduino.h"
 
-//
 Servo::Servo(int channel)
 {		// initialize this channel with plausible values, except pin # (we set pin # when attached)
 	REFRESH_CPS = 50;
@@ -11,7 +10,7 @@ Servo::Servo(int channel)
 	this->min = DEFAULT_uS_LOW;
 	this->max = DEFAULT_uS_HIGH;
 	this->timer_width_ticks = pow(2,this->timer_width);
-  this->channel = channel;
+    this->channel = channel;
 }
 
 int Servo::attach(int pin)
@@ -24,44 +23,43 @@ int Servo::attach(int pin, int min, int max)
 {
 
 #ifdef ENFORCE_PINS
-        // Recommend only the following pins 2,4,12-19,21-23,25-27,32-33
-        if (pin == 2 || pin == 4 || pin == 5 || (pin>=12 && pin<=19) || (pin>=21 && pin<=23) || (pin>=25 && pin<=27) || pin==32 || pin==33)
-        {
+    // Recommend only the following pins 2,4,12-19,21-23,25-27,32-33
+    if (pin == 2 || pin == 4 || pin == 5 || (pin>=12 && pin<=19) || (pin>=21 && pin<=23) || (pin>=25 && pin<=27) || pin==32 || pin==33)
+    {
 #endif
-
-            // OK to proceed; first check for new/reuse
-            if (this->pinNumber < 0) // we are attaching to a new or previously detached pin; we need to initialize/reinitialize
-            {
-                this->ticks = DEFAULT_PULSE_WIDTH_TICKS;
-                this->timer_width = DEFAULT_TIMER_WIDTH;
-                this->timer_width_ticks = pow(2,this->timer_width);
-            }
-            this->pinNumber = pin;
+        // OK to proceed; first check for new/reuse
+        if (this->pinNumber < 0) // we are attaching to a new or previously detached pin; we need to initialize/reinitialize
+        {
+            this->ticks = DEFAULT_PULSE_WIDTH_TICKS;
+            this->timer_width = DEFAULT_TIMER_WIDTH;
+            this->timer_width_ticks = pow(2,this->timer_width);
+        }
+        this->pinNumber = pin;
 #ifdef ENFORCE_PINS
-        }
-        else
-        {
-            Serial.println("This pin can not be a servo: "+String(pin)+"\r\nServo availible on: 2,4,5,12-19,21-23,25-27,32-33");
-            return 0;
-        }
+    }
+    else
+    {
+        Serial.println("This pin can not be a servo: "+String(pin)+"\r\nServo availible on: 2,4,5,12-19,21-23,25-27,32-33");
+        return 0;
+    }
 #endif
 
 
-        // min/max checks 
-        if (min < MIN_PULSE_WIDTH)          // ensure pulse width is valid
-            min = MIN_PULSE_WIDTH;
-        if (max > MAX_PULSE_WIDTH)
-            max = MAX_PULSE_WIDTH;
-        this->min = min;     //store this value in uS
-        this->max = max;    //store this value in uS
-        // Set up this channel
-        // if you want anything other than default timer width, you must call setTimerWidth() before attach
-        //pwm.attachPin(this->pinNumber, REFRESH_CPS, this->timer_width );   // GPIO pin assigned to channel
-        ledcSetup(this->channel, REFRESH_CPS, this->timer_width);
-        ledcAttachPin(this->pinNumber, this->channel);
-        this->isAttached = true;
-        //Serial.println("Attaching servo : "+String(pin)+" on PWM "+String(pwm.getChannel()));
-        return 1;
+    // min/max checks 
+    if (min < MIN_PULSE_WIDTH)          // ensure pulse width is valid
+        min = MIN_PULSE_WIDTH;
+    if (max > MAX_PULSE_WIDTH)
+        max = MAX_PULSE_WIDTH;
+    this->min = min;     //store this value in uS
+    this->max = max;    //store this value in uS
+    // Set up this channel
+    // if you want anything other than default timer width, you must call setTimerWidth() before attach
+    //pwm.attachPin(this->pinNumber, REFRESH_CPS, this->timer_width );   // GPIO pin assigned to channel
+    ledcSetup(this->channel, REFRESH_CPS, this->timer_width);
+    ledcAttachPin(this->pinNumber, this->channel);
+    this->isAttached = true;
+    //Serial.println("Attaching servo : "+String(pin)+" on PWM "+String(pwm.getChannel()));
+    return 1;
 }
 
 void Servo::detach()
